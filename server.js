@@ -188,6 +188,12 @@ app.get('/loginErrors', (req,res) => {
         errors:errors
     });
 });
+// handle get route
+app.get('/uploadImage', (req,res) =>{
+  res.render('uploadImage', {
+    title: 'Upload'
+  });
+});
 app.get('/logout',(req,res) => {
     User.findById({_id:req.user._id})
     .then((user) => {
