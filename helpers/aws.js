@@ -5,7 +5,7 @@ const keys = require('../config/keys');
 
 aws.config.update({
   accessKeyId: keys.AWSAccessKeyID,
-  secretAccessKey: key.AWSAccessKeySecret
+  secretAccessKey: keys.AWSAccessKeySecret
 });
 
 module.exports = {
