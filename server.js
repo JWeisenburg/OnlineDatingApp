@@ -235,4 +235,3 @@ app.post('/contactUs',(req,res) => {
 app.listen(port,() => {
     console.log(`Server is running on port ${port}`);
 });
-server.timeout = 100000;
