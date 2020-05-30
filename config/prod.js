@@ -3,6 +3,7 @@ module.exports = {
   FacebookAppID: process.env.FB_APP_ID,
   FacebookAppSecret: process.env.FB_APP_SECRET,
   GoogleClientID: process.env.GOOGLE_CLIENT_ID,
-  GoogleClientSecret: process.env.GOOGLE_CLIENT_SECRET
-
+  GoogleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  AWSAccessKeyID: process.env.AWSAccessKeyID,
+  AWSAccessKeySecret: process.env.AWSAccessKeySecret
 };
