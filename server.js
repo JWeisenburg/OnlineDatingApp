@@ -127,6 +127,32 @@ app.get('/profile', requireLogin, (req, res) => {
     }
   });
 });
+app.post('/updateProfile',requireLogin,(req,res) =>{
+    User.findById({_id:req.user._id})
+    .then((user) =>{
+      user.fullname = req.body.fullname;
+      user.email = req.body.email;
+      user.gender = req.body.gender;
+      user.about = req.body.about;
+      user.save(() =>{
+        res.redirect('/profile');
+      });
+    });
+});
+
+app.get('/askToDelete',(req,res) =>{
+    res.render('askToDelete', {
+      title: 'Delete'
+    });
+});
+app.get('/deleteAccount',(req,res) =>{
+  User.deleteOne({_id:req.user._id})
+  .then(() =>{
+    res.render('accountDeleted', {
+      title: 'Deleted'
+    });
+  });
+});
 app.get('/newAccount', (req, res) => {
   res.render('newAccount', {
     title: 'Signup'
@@ -244,9 +270,7 @@ app.post('/uploadFile',uploadImage.any(),(req,res) =>{
 });
 
 app.get('/logout', (req, res) => {
-  User.findById({
-      _id: req.user._id
-    })
+  User.findById({_id: req.user._id})
     .then((user) => {
       user.online = false;
       user.save((err, user) => {
