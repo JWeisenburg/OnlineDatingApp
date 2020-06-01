@@ -1,0 +1,43 @@
+<div class="container">
+
+  <h3 class="center">
+    <img src="{{chat.sender.image}}" class="chatroom-users rounded-circle">
+    <img src="{{chat.receiver.image}}" class="chatroom-users rounded-circle">
+  </h3>
+<div id="messages">
+  {{#each chat}}
+  {{#each chats}}
+  {{#if senderMessage}}
+  <div class="media">
+    <img src="{{chat.sender.image}}" class="mr-3 chatroom-users rounded-circle">
+    <div class="media-body">
+      <h5 class="mt-0">{{senderMessage}}</h5>
+      <small>{{date}}</small>
+    </div>
+  </div>
+  {{/if}}
+  {{/each}}
+  {{/each}}
+
+  <hr>
+
+  {{#each chat}}
+  {{#each chats}}
+  {{#if receiverMessage}}
+  <div class="media">
+    <img src="{{receiverName.image}}" class="mr-3 chatroom-users rounded-circle">
+    <div class="media-body">
+      <h5 class="mt-0">{{receiverMessage}}</h5>
+      <small>{{date}}</small>
+    </div>
+  </div>
+  {{/if}}
+  {{/each}}
+  {{/each}}
+</div>
+<form action="/chat/{{chat._id}}" method="POST">
+  <input type="text" class="form-control" name="chat" placeholder="Type message..">
+  <br>
+  <button class="btn btn-primary" type="submit">Send</button>
+</form>
+</div>

@@ -1,12 +1,32 @@
-.center{
-  text-align:center;
+.center {
+  text-align: center;
 }
-.green{
-  color:green;
+
+.green {
+  color: green;
 }
-.red{
-  color:red;
+
+.red {
+  color: red;
 }
-.fa-edit{
+
+.fa-edit {
   cursor: pointer;
+  color: blue;
+  margin-right: 10px;
+}
+
+a:visited {
+  color: red;
+  margin-right: 10px;
+}
+.col-sm-3{
+  margin: 5px 5px 5px 5px;
+}
+.chatroom-users{
+  width:64px;
+  height: 64px;
+}
+#messages{
+  height: 300px;
 }
