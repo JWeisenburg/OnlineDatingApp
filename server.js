@@ -20,8 +20,13 @@ const app = express();
 // load keys file
 const Keys = require('./config/keys');
 // Load Helpers
-const {requireLogin,ensureGuest} = require('./helpers/auth');
-const {uploadImage} = require('./helpers/aws');
+const {
+  requireLogin,
+  ensureGuest
+} = require('./helpers/auth');
+const {
+  uploadImage
+} = require('./helpers/aws');
 // use body parser middleware
 app.use(bodyParser.urlencoded({
   extended: false
@@ -125,31 +130,35 @@ app.get('/profile', requireLogin, (req, res) => {
     }
   });
 });
-app.post('/updateProfile',requireLogin,(req,res) =>{
-    User.findById({_id:req.user._id})
-    .then((user) =>{
+app.post('/updateProfile', requireLogin, (req, res) => {
+  User.findById({
+      _id: req.user._id
+    })
+    .then((user) => {
       user.fullname = req.body.fullname;
       user.email = req.body.email;
       user.gender = req.body.gender;
       user.about = req.body.about;
-      user.save(() =>{
+      user.save(() => {
         res.redirect('/profile');
       });
     });
 });
 
-app.get('/askToDelete',requireLogin,(req,res) =>{
-    res.render('askToDelete', {
-      title: 'Delete'
-    });
-});
-app.get('/deleteAccount',requireLogin,(req,res) =>{
-  User.deleteOne({_id:req.user._id})
-  .then(() =>{
-    res.render('accountDeleted', {
-      title: 'Deleted'
-    });
+app.get('/askToDelete', requireLogin, (req, res) => {
+  res.render('askToDelete', {
+    title: 'Delete'
   });
+});
+app.get('/deleteAccount', requireLogin, (req, res) => {
+  User.deleteOne({
+      _id: req.user._id
+    })
+    .then(() => {
+      res.render('accountDeleted', {
+        title: 'Deleted'
+      });
+    });
 });
 app.get('/newAccount', (req, res) => {
   res.render('newAccount', {
@@ -235,237 +244,271 @@ app.get('/loginErrors', (req, res) => {
   });
 });
 // handle get route
-app.get('/uploadImage',requireLogin, (req, res) => {
+app.get('/uploadImage', requireLogin, (req, res) => {
   res.render('uploadImage', {
     title: 'Upload'
   });
 });
-app.post('/uploadAvatar',requireLogin,(req,res) => {
-  User.findById({_id:req.user._id})
+app.post('/uploadAvatar', requireLogin, (req, res) => {
+  User.findById({
+      _id: req.user._id
+    })
     .then((user) => {
-        user.image = `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`;
-        user.save((err) => {
-          if (err){
-            throw err;
-          } else {
-            res.redirect('/profile');
-          }
-        });
+      user.image = `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`;
+      user.save((err) => {
+        if (err) {
+          throw err;
+        } else {
+          res.redirect('/profile');
+        }
+      });
     });
 });
-app.post('/uploadFile',requireLogin,uploadImage.any(),(req,res) =>{
-    const form = new formidable.IncomingForm();
-    form.on('file', (field,file) =>{
-      console.log(file);
-    });
-    form.on('error',(err) =>{
-      console.log(err);
-    });
-    form.on('end',() =>{
-      console.log('Image upload is successful...')
-    });
-    form.parse(req);
+app.post('/uploadFile', requireLogin, uploadImage.any(), (req, res) => {
+  const form = new formidable.IncomingForm();
+  form.on('file', (field, file) => {
+    console.log(file);
+  });
+  form.on('error', (err) => {
+    console.log(err);
+  });
+  form.on('end', () => {
+    console.log('Image upload is successful...')
+  });
+  form.parse(req);
 });
 // handle Get route for users
-app.get('/singles',requireLogin,(req,res) =>{
+app.get('/singles', requireLogin, (req, res) => {
   User.find({})
-  .sort({date: 'desc'})
-    .then((singles) =>{
-      res.render('singles',{
+    .sort({
+      date: 'desc'
+    })
+    .then((singles) => {
+      res.render('singles', {
         title: 'Singles',
         singles: singles
       })
-    }).catch((err) =>{
+    }).catch((err) => {
       console.log(err);
     });
 });
-app.get('/userProfile/:id',(req,res) => {
-    User.findById({_id:req.params.id})
+app.get('/userProfile/:id', (req, res) => {
+  User.findById({
+      _id: req.params.id
+    })
     .then((user) => {
-        res.render('userProfile',{
-          title: 'Profile',
-          oneUser: user
-        });
+      res.render('userProfile', {
+        title: 'Profile',
+        oneUser: user
+      });
     });
 });
 //Start Chat process
-app.get('/startChat/:id',requireLogin,(req,res) =>{
-  Chat.findOne({sender:req.params.id,receiver:req.user._id})
-  .then((chat) =>{
-    if (chat) {
-      chat.receiverRead = true;
-      chat.senderRead = false;
-      chat.date = new Date();
-      chat.save((err,message) =>{
-        if (err) {
-          throw err;
-        }
-        if (chat) {
-          res.redirect(`/chat/${chat._id}`);
-        }
-      })
-    }else{
-      Chat.findOne({sender:req.user._id,receiver:req.params.id})
-      .then((chat) =>{
-        if (chat) {
-          chat.senderRead = true;
-          chat.receiverRead = false;
-          chat.date = new Date();
-          chat.save((err,message) =>{
-            if (err) {
-              throw err;
-            }
-            if (chat) {
-              res.redirect(`/chat/${chat._id}`);
-            }
-          })
-        }else{
-          const newChat = {
-            sender: req.user._id,
-            receiver: req.params.id,
-            senderRead: true,
-            receiverRead: false,
-            date: new Date()
+app.get('/startChat/:id', requireLogin, (req, res) => {
+  Chat.findOne({
+      sender: req.params.id,
+      receiver: req.user._id
+    })
+    .then((chat) => {
+      if (chat) {
+        chat.receiverRead = true;
+        chat.senderRead = false;
+        chat.date = new Date();
+        chat.save((err, message) => {
+          if (err) {
+            throw err;
           }
-          new Chat(newChat).save((err,chat) =>{
-            if (err) {
-              throw err;
-            }
+          if (chat) {
+            res.redirect(`/chat/${chat._id}`);
+          }
+        })
+      } else {
+        Chat.findOne({
+            sender: req.user._id,
+            receiver: req.params.id
+          })
+          .then((chat) => {
             if (chat) {
-              res.redirect(`/chat/${chat._id}`);
+              chat.senderRead = true;
+              chat.receiverRead = false;
+              chat.date = new Date();
+              chat.save((err, message) => {
+                if (err) {
+                  throw err;
+                }
+                if (chat) {
+                  res.redirect(`/chat/${chat._id}`);
+                }
+              })
+            } else {
+              const newChat = {
+                sender: req.user._id,
+                receiver: req.params.id,
+                senderRead: true,
+                receiverRead: false,
+                date: new Date()
+              }
+              new Chat(newChat).save((err, chat) => {
+                if (err) {
+                  throw err;
+                }
+                if (chat) {
+                  res.redirect(`/chat/${chat._id}`);
+                }
+              })
             }
           })
-        }
-      })
-    }
-  })
+      }
+    })
 })
 //Display Chat Room
-app.get('/chat/:id',requireLogin,(req,res) =>{
-  Chat.findById({_id:req.params.id})
-  .populate('sender')
-  .populate('receiver')
-  .populate('chats.senderName')
-  .populate('chats.receiverName')
-  .then((chat) =>{
-      User.findOne({_id:req.user._id})
-      .then((user) =>{
-        res.render('chatRoom',{
-          title:'Chat',
-          user:user,
-          chat:chat
+app.get('/chat/:id', requireLogin, (req, res) => {
+  Chat.findById({
+      _id: req.params.id
+    })
+    .populate('sender')
+    .populate('receiver')
+    .populate('chats.senderName')
+    .populate('chats.receiverName')
+    .then((chat) => {
+      User.findOne({
+          _id: req.user._id
         })
+        .then((user) => {
+          res.render('chatRoom', {
+            title: 'Chat',
+            user: user,
+            chat: chat
+          })
 
-      })
-  })
+        })
+    })
 })
-app.post('/chat/:id',requireLogin,(req,res) =>{
-  Chat.findOne({_id:req.params.id,sender:req.user._id})
-  .populate('sender')
-  .populate('receiver')
-  .populate('chats.senderName')
-  .populate('chats.receiverName')
-  .then((chat) =>{
-    if (chat) {
-      chat.senderRead = true;
-      chat.receiverRead = false;
-      chat.date = new Date();
+app.post('/chat/:id', requireLogin, (req, res) => {
+  Chat.findOne({
+      _id: req.params.id,
+      sender: req.user._id
+    })
+    .populate('sender')
+    .populate('receiver')
+    .populate('chats.senderName')
+    .populate('chats.receiverName')
+    .then((chat) => {
+      if (chat) {
+        chat.senderRead = true;
+        chat.receiverRead = false;
+        chat.date = new Date();
 
-      const newChat = {
-        senderName:req.user._id,
-        senderRead: true,
-        receiverName: chat.receiver._id,
-        receiverRead: false,
-        date: new Date(),
-        senderMessage: req.body.chat
-      }
-      chat.chats.push(newChat)
-      chat.save((err,chat) =>{
-        if (err) {
-          throw err;
+        const newChat = {
+          senderName: req.user._id,
+          senderRead: true,
+          receiverName: chat.receiver._id,
+          receiverRead: false,
+          date: new Date(),
+          senderMessage: req.body.chat
         }
-        if (chat) {
-          Chat.findOne({_id:chat._id})
-          .populate('sender')
-          .populate('receiver')
-          .populate('chat.senderName')
-          .populate('chat.receiverName')
-          .then((chat) => {
-            User.findById({_id:req.user._id})
-            .then((user) =>{
-              //we will charge client for each message
-              user.wallet = user.wallet - 1;
-              user.save((err,user) => {
+        chat.chats.push(newChat)
+        chat.save((err, chat) => {
+          if (err) {
+            throw err;
+          }
+          if (chat) {
+            Chat.findOne({
+                _id: chat._id
+              })
+              .populate('sender')
+              .populate('receiver')
+              .populate('chats.senderName')
+              .populate('chats.receiverName')
+              .then((chat) => {
+                User.findById({
+                    _id: req.user._id
+                  })
+                  .then((user) => {
+                    //we will charge client for each message
+                    user.wallet = user.wallet - 1;
+                    user.save((err, user) => {
+                      if (err) {
+                        throw err;
+                      }
+                      if (user) {
+                        res.render('chatRoom', {
+                          title: 'Chat',
+                          chat: chat,
+                          user: user
+                        })
+                      }
+
+                    })
+                  })
+
+              })
+          } else {
+            Chat.findOne({
+                _id:req.params.id,
+                receiver:req.user._id
+              })
+              .populate('sender')
+              .populate('receiver')
+              .populate('chats.senderName')
+              .populate('chats.receiverName')
+              .then((chat) => {
+                chat.senderRead = true;
+                chat.receiverRead = false;
+                chat.date = new Date();
+                const newChat = {
+                  senderName: chat.sender._id,
+                  senderRead: false,
+                  receiverName: req.user._id,
+                  receiverRead: true,
+                  receiverMessage: req.body.chat,
+                  date: new Date()
+                }
+                chat.chats.push(newChat)
+                chat.save((err,chat) => {
                   if (err) {
                     throw err;
                   }
-                  if (user) {
-                    res.render('chatRoom',{
-                    title: 'Chat',
-                    chat:chat,
-                    user:user
-                  })
-                }
-              })
-            })
-          })
-        }
-      })
-    }else{
-        Chat.findOne({_id:req.params.id,receiver:req.user._id})
-        .populate('sender')
-        .populate('receiver')
-        .populate('chats.senderName')
-        .populate('chats.receiverName')
-        .then((chat) =>{
-          chat.senderRead = true;
-          chat.receiverRead = false;
-          chat.date = new Date();
-          const newChat = {
-              senderName: chat.sender._id,
-              senderRead: false,
-              receiverName:req.user._id,
-              receiverRead: true,
-              receiverMessage: req.body.chat,
-              date: new Date()
-          }
-          chat.chats.push(newChat)
-          chat.save((err,chat) =>{
-              if (err) {
-                throw err;
-              }
-              if (chat) {
-                Chat.findOne({_id:chat._id})
-                .populate('sender')
-                .populate('receiver')
-                .populate('senderName')
-                .populate('receiverName')
-                .then((chat) =>{
-                    User.findById({_id:req.user._id})
-                      .then((user) =>{
-                        user.wallet = user.wallet - 1;
-                        user.save((err,user) =>{
-                          if (err){
-                            throw err;
-                          }
-                          if (user) {
-                            res.render('chatRoom', {
-                              title:'Chat',
-                              user:user,
-                              chat:chat
-                            })
-                          }
-                        })
+                  if (chat) {
+                    Chat.findOne({
+                        _id: chat._id
                       })
+                      .populate('sender')
+                      .populate('receiver')
+                      .populate('chats.senderName')
+                      .populate('chats.receiverName')
+                      .then((chat) => {
+                        User.findById({
+                            _id: req.user._id
+                          })
+                          .then((user) => {
+                            user.wallet = user.wallet - 1;
+                            user.save((err, user) => {
+                              if (err) {
+                                throw err;
+                              }
+                              if (user) {
+                                res.render('chatRoom', {
+                                  title: 'Chat',
+                                  user: user,
+                                  chat: chat
+                                })
+                              }
+                            })
+                          })
+                      })
+                  }
                 })
-              }
-          })
+              })
+          }
         })
-    }
-  })
+      }
+    })
 })
 app.get('/logout', (req, res) => {
-  User.findById({_id: req.user._id})
+  User.findById({
+      _id: req.user._id
+    })
     .then((user) => {
       user.online = false;
       user.save((err, user) => {

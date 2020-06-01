@@ -22,7 +22,7 @@ const chatSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  chats: [{
+  chats:[{
     senderName: {
       type: Schema.Types.ObjectId,
       ref: 'User'
