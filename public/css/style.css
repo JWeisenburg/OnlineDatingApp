@@ -17,7 +17,7 @@
 }
 
 a:visited {
-  color: red;
+
   margin-right: 10px;
 }
 .col-sm-3{
@@ -29,4 +29,20 @@ a:visited {
 }
 #messages{
   height: 300px;
+  overflow-y: scroll;
+}
+.right{
+  float: right;
+}
+.singles-icons{
+  margin-top: 5px;
+}
+.col-sm-3{
+  border: 1px solid black;
+  padding: 5px 5px 5px 5px;
+}
+#main-body{
+  margin-top: 60px;
+  margin-bottom: 60px;
+  .sort({date:desc})
 }

@@ -16,6 +16,8 @@ const formidable = require('formidable');
 const Message = require('./models/message');
 const User = require('./models/user');
 const Chat = require('./models/chat');
+const Smile = require('./models/smile');
+
 const app = express();
 // load keys file
 const Keys = require('./config/keys');
@@ -27,6 +29,9 @@ const {
 const {
   uploadImage
 } = require('./helpers/aws');
+const {
+  getLastMoment
+} = require('./helpers/moment');
 // use body parser middleware
 app.use(bodyParser.urlencoded({
   extended: false
@@ -73,6 +78,9 @@ const port = process.env.PORT || 3000;
 // setup view engine
 app.engine('handlebars', exphbs({
   defaultLayout: 'main',
+  helpers: {
+    getLastMoment: getLastMoment
+  },
   handlebars: allowInsecurePrototypeAccess(Handlebars)
 }));
 app.set('view engine', 'handlebars');
@@ -121,10 +129,24 @@ app.get('/profile', requireLogin, (req, res) => {
         if (err) {
           throw err;
         } else {
-          res.render('profile', {
-            title: 'Profile',
-            user: user
-          });
+          Smile.findOne({
+              receiver: req.user._id,
+              receiverReceived: false
+            })
+            .then((newSmile) => {
+              Chat.findOne({$or:[
+                {receiver:req.user._id,receiverRead:false},
+                {sender:req.user._id,senderRead:false}
+              ]})
+              .then((unread) =>{
+                res.render('profile', {
+                  title: 'Profile',
+                  user: user,
+                  newSmile: newSmile,
+                  unread:unread
+                });
+              })
+            })
         }
       })
     }
@@ -297,10 +319,16 @@ app.get('/userProfile/:id', (req, res) => {
       _id: req.params.id
     })
     .then((user) => {
-      res.render('userProfile', {
-        title: 'Profile',
-        oneUser: user
-      });
+      Smile.findOne({
+          receiver: req.params.id
+        })
+        .then((smile) => {
+          res.render('userProfile', {
+            title: 'Profile',
+            oneUser: user,
+            smile: smile
+          });
+        })
     });
 });
 //Start Chat process
@@ -389,12 +417,16 @@ app.post('/chat/:id', requireLogin, (req, res) => {
       _id: req.params.id,
       sender: req.user._id
     })
+    .sort({
+      date: 'desc'
+    })
     .populate('sender')
     .populate('receiver')
     .populate('chats.senderName')
     .populate('chats.receiverName')
     .then((chat) => {
       if (chat) {
+        // sender sends message here
         chat.senderRead = true;
         chat.receiverRead = false;
         chat.date = new Date();
@@ -415,6 +447,9 @@ app.post('/chat/:id', requireLogin, (req, res) => {
           if (chat) {
             Chat.findOne({
                 _id: chat._id
+              })
+              .sort({
+                date: 'desc'
               })
               .populate('sender')
               .populate('receiver')
@@ -438,77 +473,152 @@ app.post('/chat/:id', requireLogin, (req, res) => {
                           user: user
                         })
                       }
-
                     })
                   })
 
               })
-          } else {
-            Chat.findOne({
-                _id:req.params.id,
-                receiver:req.user._id
-              })
-              .populate('sender')
-              .populate('receiver')
-              .populate('chats.senderName')
-              .populate('chats.receiverName')
-              .then((chat) => {
-                chat.senderRead = true;
-                chat.receiverRead = false;
-                chat.date = new Date();
-                const newChat = {
-                  senderName: chat.sender._id,
-                  senderRead: false,
-                  receiverName: req.user._id,
-                  receiverRead: true,
-                  receiverMessage: req.body.chat,
-                  date: new Date()
-                }
-                chat.chats.push(newChat)
-                chat.save((err,chat) => {
-                  if (err) {
-                    throw err;
-                  }
-                  if (chat) {
-                    Chat.findOne({
-                        _id: chat._id
-                      })
-                      .populate('sender')
-                      .populate('receiver')
-                      .populate('chats.senderName')
-                      .populate('chats.receiverName')
-                      .then((chat) => {
-                        User.findById({
-                            _id: req.user._id
-                          })
-                          .then((user) => {
-                            user.wallet = user.wallet - 1;
-                            user.save((err, user) => {
-                              if (err) {
-                                throw err;
-                              }
-                              if (user) {
-                                res.render('chatRoom', {
-                                  title: 'Chat',
-                                  user: user,
-                                  chat: chat
-                                })
-                              }
-                            })
-                          })
-                      })
-                  }
-                })
-              })
+            //receiver sends message back
           }
         })
+      } else {
+        Chat.findOne({
+            _id: req.params.id,
+            receiver: req.user._id
+          })
+          .sort({
+            date: 'desc'
+          })
+          .populate('sender')
+          .populate('receiver')
+          .populate('chats.senderName')
+          .populate('chats.receiverName')
+          .then((chat) => {
+            chat.senderRead = true;
+            chat.receiverRead = false;
+            chat.date = new Date();
+            const newChat = {
+              senderName: chat.sender._id,
+              senderRead: false,
+              receiverName: req.user._id,
+              receiverRead: true,
+              receiverMessage: req.body.chat,
+              date: new Date()
+            }
+            chat.chats.push(newChat)
+            chat.save((err, chat) => {
+              if (err) {
+                throw err;
+              }
+              if (chat) {
+                Chat.findOne({
+                    _id: chat._id
+                  })
+                  .sort({
+                    date: 'desc'
+                  })
+                  .populate('sender')
+                  .populate('receiver')
+                  .populate('chats.senderName')
+                  .populate('chats.receiverName')
+                  .then((chat) => {
+                    User.findById({
+                        _id: req.user._id
+                      })
+                      .then((user) => {
+                        user.wallet = user.wallet - 1;
+                        user.save((err, user) => {
+                          if (err) {
+                            throw err;
+                          }
+                          if (user) {
+                            res.render('chatRoom', {
+                              title: 'Chat',
+                              user: user,
+                              chat: chat
+                            })
+                          }
+                        })
+                      })
+                  })
+              }
+            })
+          })
       }
     })
 })
-app.get('/logout', (req, res) => {
-  User.findById({
-      _id: req.user._id
+app.get('/chats',requireLogin,(req,res) =>{
+  Chat.find({receiver:req.user._id})
+  .populate('sender')
+  .populate('receiver')
+  .populate('chats.senderName')
+  .populate('chats.receiverName')
+  .sort({date: 'desc'})
+  .then((received) =>{
+    Chat.find({sender:req.user._id})
+    .populate('sender')
+    .populate('receiver')
+    .populate('chats.senderName')
+    .populate('chats.receiverName')
+    .sort({date:'desc'})
+    .then((sent) =>{
+      res.render('chat/chats', {
+        title:'Chat History',
+        received:received,
+        sent:sent
+      })
     })
+  })
+})
+//  GET ROUTE TO SEND SMILE
+app.get('/sendSmile/:id', requireLogin, (req, res) => {
+  const newSmile = {
+    sender: req.user._id,
+    receiver: req.params.id,
+    senderSent: true
+  }
+  new Smile(newSmile).save((err, smile) => {
+    if (err) {
+      throw err;
+    }
+    if (smile) {
+      res.redirect(`/userProfile/${req.params.id}`);
+    }
+  })
+})
+// Delete SMILE
+app.get('/deleteSmile/:id', requireLogin, (req, res) => {
+  Smile.deleteOne({
+      receiver: req.params.id,
+      sender: req.user._id
+    })
+    .then(() => {
+      res.redirect(`/userProfile/${req.params.id}`);
+    })
+})
+//Show smile sender
+app.get('/showSmile/:id', requireLogin, (req, res) => {
+  Smile.findOne({
+      _id: req.params.id
+    })
+    .populate('sender')
+    .populate('receiver')
+    .then((smile) => {
+      smile.receiverReceived = true;
+      smile.save((err, smile) => {
+        if (err) {
+          throw err;
+        }
+        if (smile) {
+          res.render('smile/showSmile', {
+            title: 'newSmile',
+            smile: smile
+          })
+        }
+      })
+    })
+})
+app.get('/logout', (req, res) => {
+  User.findById({_id: req.user._id})
     .then((user) => {
       user.online = false;
       user.save((err, user) => {

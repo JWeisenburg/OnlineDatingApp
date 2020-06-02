@@ -1,36 +1,44 @@
 <div class="container">
 
   <h3 class="center">
-    <img src="{{chat.sender.image}}" class="chatroom-users rounded-circle">
-    <img src="{{chat.receiver.image}}" class="chatroom-users rounded-circle">
+    <a href="/userProfile/{{chat.sender._id}}">
+      <img src="{{chat.sender.image}}" class="chatroom-users rounded-circle">
+    </a>
+    <a href="/userProfile/{{chat.receiver._id}}">
+      <img src="{{chat.receiver.image}}" class="chatroom-users rounded-circle">
+    </a>
   </h3>
 <div id="messages">
   {{#each chat}}
   {{#each chats}}
   {{#if senderMessage}}
   <div class="media">
-    <img src="{{senderName.image}}" class="mr-3 chatroom-users rounded-circle">
+    <a href="/userProfile/{{senderName._id}}">
+      <img src="{{senderName.image}}" class="mr-3 chatroom-users rounded-circle">
+    </a>
     <div class="media-body">
       <h5 class="mt-0">{{senderMessage}}</h5>
       <small>{{date}}</small>
     </div>
   </div>
+    <hr>
   {{/if}}
   {{/each}}
   {{/each}}
-
-  <hr>
 
   {{#each chat}}
   {{#each chats}}
   {{#if receiverMessage}}
   <div class="media">
-    <img src="{{receiverName.image}}" class="mr-3 chatroom-users rounded-circle">
+    <a href="/userProfile/{{receiverName._id}}">
+      <img src="{{receiverName.image}}" class="mr-3 chatroom-users rounded-circle">
+    </a>
     <div class="media-body">
       <h5 class="mt-0">{{receiverMessage}}</h5>
       <small>{{date}}</small>
     </div>
   </div>
+    <hr>
   {{/if}}
   {{/each}}
   {{/each}}

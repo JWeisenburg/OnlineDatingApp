@@ -1,28 +1,55 @@
 <div class="container-fluid">
-  {{#each singles}} 
-  {{#if online}}
-  <a href="/userProfile/{{_id}}">
-    <div class="row">
-      <div class="col-sm-3">
-        <img src="{{image}}" class="rounded-circle" width="75px">
-        <br>
-        <i class="fa fa-circle green">online</i>
-      </div>
-    </div>
-  </a>
-  {{else}}
-  <a href="/userProfile/{{_id}}">
-    <div class="row">
-      <div class="col-sm-3">
-        <img src="{{image}}" class="rounded-circle" width="75px">
-        <br>
-        <i class="fa fa-circle red">offline</i>
-      </div>
-    </div>
-  </a>
-  {{/if}}
-  {{else}}
-  <p>No user found</p>
-  {{/each}}
+  <div class="row">
+  {{#each singles}}
+    {{#if online}}
 
+        <div class="col-sm-3">
+          <img src="{{image}}" class="img-fluid">
+          <br>
+
+          <h4 class="singles-icons">
+            <a href="/userProfile/{{_id}}">
+              <button class="btn btn-outline-primary"><i class="fa fa-address-book"></i></button>
+            </a>
+
+            <a href="/startChat/{{_id}}">
+              <button class="btn btn-outline-info"><i class="fa fa-commenting"></i></button>
+            </a>
+            <a href="/sendSmile/{{_id}}">
+              <button class="btn btn-outline-danger">
+                <i class="fa fa-smile-o"></i>
+              </button>
+            </a>
+            <i class="fa fa-circle green right">ONLINE</i>
+          </h4>
+        </div>
+
+    {{else}}
+
+        <div class="col-sm-3">
+          <img src="{{image}}" class="img-fluid">
+          <br>
+
+          <h4 class="singles-icons">
+            <a href="/userProfile/{{_id}}">
+              <button class="btn btn-outline-primary"><i class="fa fa-address-book"></i></button>
+            </a>
+
+            <a href="/startChat/{{_id}}">
+              <button class="btn btn-outline-info"> <i class="fa fa-commenting"></i></button>
+            </a>
+            <a href="/sendSmile/{{_id}}">
+              <button class="btn btn-outline-danger">
+                <i class="fa fa-smile-o"></i>
+              </button>
+            </a>
+            <i class="fa fa-circle red right">OFFLINE</i>
+          </h4>
+        </div>
+
+    {{/if}}
+  {{else}}
+    <p>No user found</p>
+  {{/each}}
+  </div>
 </div>
