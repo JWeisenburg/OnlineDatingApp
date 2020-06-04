@@ -12,6 +12,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const bcrypt = require('bcryptjs');
 const formidable = require('formidable');
+
 // Load models
 const Message = require('./models/message');
 const User = require('./models/user');
@@ -21,6 +22,8 @@ const Smile = require('./models/smile');
 const app = express();
 // load keys file
 const Keys = require('./config/keys');
+// load Stripe module
+const stripe = require('stripe')(Keys.StripeSecretKey);
 // Load Helpers
 const {
   requireLogin,
@@ -32,6 +35,7 @@ const {
 const {
   getLastMoment
 } = require('./helpers/moment');
+const {walletChecker} = require('./helpers/wallet');
 // use body parser middleware
 app.use(bodyParser.urlencoded({
   extended: false
@@ -103,7 +107,6 @@ app.get('/contact', ensureGuest, (req, res) => {
     title: 'Contact'
   });
 });
-
 app.get('/auth/facebook', passport.authenticate('facebook', {
   scope: ['email']
 }));
@@ -412,7 +415,7 @@ app.get('/chat/:id', requireLogin, (req, res) => {
         })
     })
 })
-app.post('/chat/:id', requireLogin, (req, res) => {
+app.post('/chat/:id',requireLogin,walletChecker,(req, res) => {
   Chat.findOne({
       _id: req.params.id,
       sender: req.user._id
@@ -561,6 +564,7 @@ app.get('/chats',requireLogin,(req,res) =>{
     .populate('chats.receiverName')
     .sort({date:'desc'})
     .then((sent) =>{
+
       res.render('chat/chats', {
         title:'Chat History',
         received:received,
@@ -569,6 +573,7 @@ app.get('/chats',requireLogin,(req,res) =>{
     })
   })
 })
+
 // Delete chat
 app.get('/deleteChat/:id',requireLogin,(req,res) =>{
     Chat.deleteOne({_id:req.params.id})
@@ -576,6 +581,146 @@ app.get('/deleteChat/:id',requireLogin,(req,res) =>{
       res.redirect('/chats');
     });
 });
+//CHARGE client
+app.post('/charge10dollars',requireLogin,(req,res) =>{
+    console.log(req.body);
+    const amount = 1000;
+    stripe.customers.create({
+      email:req.body.stripeEmail,
+      source: req.body.stripeToken
+    }).then((customer) =>{
+      stripe.charges.create({
+        amount:amount,
+        description:'$10 for 20 messages',
+        currency: 'usd',
+        customer:customer.id,
+        receipt_email:customer.email
+      }).then((charge) =>{
+          if (charge) {
+              User.findById({_id:req.user._id})
+              .then((user) =>{
+                user.wallet +=20;
+                user.save()
+                .then(() =>{
+                    res.render('success',{
+                      title:'Success',
+                      charge:charge
+                    })
+                })
+              })
+          }
+          }).catch((err) =>{
+          console.log(err);
+          })
+          }).catch((err) =>{
+          console.log(err);
+          })
+          })
+          // Charge $20 to client
+          app.post('/charge20dollars',requireLogin,(req,res) =>{
+              console.log(req.body);
+              const amount = 2000;
+              stripe.customers.create({
+                email:req.body.stripeEmail,
+                source: req.body.stripeToken
+              }).then((customer) =>{
+                stripe.charges.create({
+                  amount:amount,
+                  description:'$20 for 50 messages',
+                  currency: 'usd',
+                  customer:customer.id,
+                  receipt_email:customer.email
+                }).then((charge) =>{
+                    if (charge) {
+                        User.findById({_id:req.user._id})
+                        .then((user) =>{
+                          user.wallet +=50;
+                          user.save()
+                          .then(() =>{
+                              res.render('success',{
+                                title:'Success',
+                                charge:charge
+                              })
+                          })
+                        })
+        }
+      }).catch((err) =>{
+        console.log(err);
+      })
+    }).catch((err) =>{
+      console.log(err);
+    })
+})
+//Charge $30 dollars
+app.post('/charge30dollars',requireLogin,(req,res) =>{
+    console.log(req.body);
+    const amount = 3000;
+    stripe.customers.create({
+      email:req.body.stripeEmail,
+      source: req.body.stripeToken
+    }).then((customer) =>{
+      stripe.charges.create({
+        amount:amount,
+        description:'$30 for 100 messages',
+        currency: 'usd',
+        customer:customer.id,
+        receipt_email:customer.email
+      }).then((charge) =>{
+          if (charge) {
+              User.findById({_id:req.user._id})
+              .then((user) =>{
+                user.wallet +=100;
+                user.save()
+                .then(() =>{
+                    res.render('success',{
+                      title:'Success',
+                      charge:charge
+                    })
+                })
+              })
+}
+}).catch((err) =>{
+console.log(err);
+})
+}).catch((err) =>{
+console.log(err);
+})
+})
+// charge $40
+app.post('/charge40dollars',requireLogin,(req,res) =>{
+    console.log(req.body);
+    const amount = 4000;
+    stripe.customers.create({
+      email:req.body.stripeEmail,
+      source: req.body.stripeToken
+    }).then((customer) =>{
+      stripe.charges.create({
+        amount:amount,
+        description:'$40 for 300 messages',
+        currency: 'usd',
+        customer:customer.id,
+        receipt_email:customer.email
+      }).then((charge) =>{
+          if (charge) {
+              User.findById({_id:req.user._id})
+              .then((user) =>{
+                user.wallet +=300;
+                user.save()
+                .then(() =>{
+                    res.render('success',{
+                      title:'Success',
+                      charge:charge
+                    })
+                })
+              })
+}
+}).catch((err) =>{
+console.log(err);
+})
+}).catch((err) =>{
+console.log(err);
+})
+})
 //  GET ROUTE TO SEND SMILE
 app.get('/sendSmile/:id', requireLogin, (req, res) => {
   const newSmile = {

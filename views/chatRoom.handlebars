@@ -11,6 +11,7 @@
 <div id="messages">
   {{#each chat}}
   {{#each chats}}
+
   {{#if senderMessage}}
   <div class="media">
     <a href="/userProfile/{{senderName._id}}">
@@ -23,11 +24,6 @@
   </div>
     <hr>
   {{/if}}
-  {{/each}}
-  {{/each}}
-
-  {{#each chat}}
-  {{#each chats}}
   {{#if receiverMessage}}
   <div class="media">
     <a href="/userProfile/{{receiverName._id}}">

@@ -29,10 +29,19 @@
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "stripe": "^8.57.0"
   },
   "devDependencies": {
     "handlebars": "^4.7.6",
     "nodemon": "^2.0.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JWeisenburg/OnlineDatingApp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JWeisenburg/OnlineDatingApp/issues"
+  },
+  "homepage": "https://github.com/JWeisenburg/OnlineDatingApp#readme"
 }

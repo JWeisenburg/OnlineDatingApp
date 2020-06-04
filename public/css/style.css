@@ -44,5 +44,12 @@ a:visited {
 #main-body{
   margin-top: 60px;
   margin-bottom: 60px;
-  .sort({date:desc})
+}
+/*Style for payment options*/
+.payment{
+    background-color: black;
+    color: white;
+    margin: 5px 5px 5px 5px;
+    padding: 10px 10px 10px 10px;
+    border: 2px solid red;
 }
