@@ -1,4 +1,5 @@
-<h1 class="center">Welcome to Online Dating</h1>
+<h1 class="center">Welcome</h1>
+<h1 class="commentUser">Online Dating</h1>
 {{#if user}}
   <p>You are logged in..</p>
 {{else}}
@@ -7,13 +8,15 @@
     <div class="col-sm-5">
       <h1 class="center">
         <a href="/auth/facebook">
-          <button type="button" class="btn btn-primary btn-lg">Login With Facebook</button>
+          <button type="button" class="btn btn-primary btn-lg btn-facebook">
+            <i class="fa fa-facebook"></i>Login With Facebook</button>
         </a>
       </h1>
 
       <h1 class="center">
         <a href="/auth/google">
-          <button type="button" class="btn btn-danger btn-lg">Login With Google</button>
+          <button type="button" class="btn btn-danger btn-lg btn-google">
+            <i class="fa fa-google-plus"></i>Login With Google</button>
         </a>
       </h1>
 <p class="center">or</p>
@@ -35,6 +38,8 @@
    </div>
   <button type="submit" class="btn btn-primary">Login</button>
 </form>
+<a href="/retrievePwd">Forgot password?</a>
+<br>
 <a href="/newAccount">Need Account?</a>
     </div>
     <div class="col-sm"></div>

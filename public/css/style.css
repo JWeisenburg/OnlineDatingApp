@@ -56,3 +56,34 @@ a:visited {
 .post-icons{
   margin-right: 10px;
 }
+.btn-facebook{
+  background-color: #4aa1f3;
+  border-radius: 0%;
+  color: #fff;
+  width: auto;
+}
+.btn-facebook:link,
+.btn-facebook:visited{
+      color: #fff;
+      background-color: #4aa1f3;
+      text-decoration: none;
+}
+.btn-facebook:active,
+.btn-facebook:hover{
+  background-color: #4aa1f3;
+  color: #fff;
+}
+.btn-google{
+  background: #e44b34;
+  color: #fff;
+  width: auto;
+  border-radius: 0%;
+}
+.btn-google:link,
+.btn-google:visited,
+.btn-google:active,
+.btn-google:hover{
+  color: #fff;
+  background:  #e44b34;
+  text-decoration: none;
+}

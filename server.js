@@ -285,6 +285,40 @@ app.get('/loginErrors', (req, res) => {
     errors: errors
   });
 });
+// retrieve password process
+app.get('/retrievePwd',(req,res) =>{
+  res.render('retrievePwd', {
+    title: 'Retrieve'
+  })
+})
+app.post('/retrievePwd',(req,res) =>{
+    let email = req.body.email.trim();
+    let pwd1 = req.body.password.trim();
+    let pwd2 = req.body.password2.trim();
+
+    if (pwd1 !== pwd2) {
+      res.render('pwdDoesNotMatch', {
+        title:'Not match'
+      })
+    }
+    User.findOne({email:email})
+    .then((user) =>{
+      let salt = bcrypt.genSaltSync(10);
+      let hash = bcrypt.hashSync(pwd1,salt);
+
+      user.password = hash;
+      user.save((err,user) =>{
+        if (err) {
+          throw err;
+        }
+        if (user) {
+          res.render('pwdUpdated', {
+            title: 'Updated'
+          })
+        }
+      })
+    })
+})
 // handle get route
 app.get('/uploadImage', requireLogin, (req, res) => {
   res.render('uploadImage', {
@@ -334,7 +368,8 @@ app.get('/singles', requireLogin, (req, res) => {
       console.log(err);
     });
 });
-app.get('/userProfile/:id', (req, res) => {
+
+app.get('/userProfile/:id',requireLogin,(req, res) => {
   User.findById({
       _id: req.params.id
     })
@@ -343,11 +378,18 @@ app.get('/userProfile/:id', (req, res) => {
           receiver: req.params.id
         })
         .then((smile) => {
-          res.render('userProfile', {
-            title: 'Profile',
-            oneUser: user,
-            smile: smile
-          });
+          Post.find({status:'public',postUser:user._id})
+          .populate('postUser')
+          .populate('comments.commentUser')
+          .populate('likes.likeUser')
+          .then((publicPosts) =>{
+            res.render('userProfile', {
+              title: 'Profile',
+              oneUser: user,
+              smile: smile,
+              publicPosts:publicPosts
+            });
+          })
         })
     });
 });
