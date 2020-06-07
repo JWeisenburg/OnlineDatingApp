@@ -4,8 +4,8 @@ const multers3 = require('multer-s3');
 const keys = require('../config/keys');
 
 aws.config.update({
-  accessKeyId: keys.AWSAccessKeyID,
-  secretAccessKey: keys.AWSAccessKeySecret
+  accessKeyId: keys.AWS_ACCESS_KEY,
+  secretAccessKey: keys.AWS_ACCESS_SECRET
 });
 
 module.exports = {
