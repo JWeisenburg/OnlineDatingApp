@@ -92,7 +92,7 @@ app.set('view engine', 'handlebars');
 
 app.get('/', ensureGuest, (req, res) => {
   res.render('home', {
-    title: 'Home'
+    title: 'Welcome'
   });
 });
 

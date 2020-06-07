@@ -14,8 +14,16 @@
   <h5><i class="fa fa-envelope-open-o"></i></h5>
   </a>
     {{else}}<a href="/startChat/{{sender._id}}">
-    <h5><i class="fa fa-envelope"></i></h5>
+    <h5><i id="closed-envelope" class="fa fa-envelope"></i></h5>
   </a>
+  <script>
+    setInterval(function(){
+        document.getElementById('closed-envelope').style.color = 'yellow';
+    },10)
+    setInterval(function(){
+        document.getElementById('closed-envelope').style.color = 'red';
+    },40)
+  </script>
     {{/if}}
     <small>{{getLastMoment date 'hour'}}</small>
 
@@ -51,8 +59,16 @@
   </a>
     {{else}}
   <a href="/startChat/{{receiver._id}}">
-  <h5><i class="fa fa-envelope"></i></h5>
+  <h5><i id="closed-envelope" class="fa fa-envelope"></i></h5>
   </a>
+  <script>
+    setInterval(function(){
+        document.getElementById('closed-envelope').style.color = 'yellow';
+    },10)
+    setInterval(function(){
+        document.getElementById('closed-envelope').style.color = 'red';
+    },40)
+  </script>
     {{/if}}
     <small>{{getLastMoment date 'hour'}}</small>
 
