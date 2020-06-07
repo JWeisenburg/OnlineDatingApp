@@ -300,7 +300,7 @@ app.post('/retrievePwd',(req,res) =>{
       res.render('pwdDoesNotMatch', {
         title:'Not match'
       })
-    }
+    }else{
     User.findOne({email:email})
     .then((user) =>{
       let salt = bcrypt.genSaltSync(10);
@@ -318,6 +318,7 @@ app.post('/retrievePwd',(req,res) =>{
         }
       })
     })
+  }
 })
 // handle get route
 app.get('/uploadImage', requireLogin, (req, res) => {
@@ -340,9 +341,9 @@ app.post('/uploadAvatar', requireLogin, (req, res) => {
       });
     });
 });
-app.post('/uploadFile', requireLogin, uploadImage.any(), (req, res) => {
+app.post('/uploadFile',requireLogin,uploadImage.any(), (req, res) => {
   const form = new formidable.IncomingForm();
-  form.on('file', (field, file) => {
+  form.on('file', (field,file) => {
     console.log(file);
   });
   form.on('error', (err) => {
@@ -982,6 +983,36 @@ app.post('/leaveComment/:id',requireLogin,(req,res) =>{
         }
       })
     })
+})
+// start friend request process
+app.get('/sendFriendRequest/:id',requireLogin,(req,res) =>{
+    User.findOne({_id:req.params.id})
+    .then((user) =>{
+      let newFriendRequest = {
+        friend: req.user._id
+      }
+      user.friends.push(newFriendRequest)
+      user.save((err,user) =>{
+        if (err) {
+          throw err;
+        }
+        if (user) {
+          res.render('friends/askFriendRequest', {
+            title:'Request',
+            newFriend: user
+          })
+        }
+      })
+    })
+})
+app.get('/showFriendRequest/:id',requireLogin,(req,res) =>{
+  User.findOne({_id:req.params.id})
+  .then((userRequest) =>{
+    res.render('friends/showFriendRequest', {
+        title: 'Request',
+          newFriend:userRequest
+    })
+  })
 })
 app.get('/logout', (req, res) => {
   User.findById({_id:req.user._id})
