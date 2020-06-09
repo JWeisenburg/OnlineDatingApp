@@ -865,7 +865,7 @@ app.post('/createPost',requireLogin,(req,res) =>{
       title: req.body.title,
       body: req.body.body,
       status: req.body.status,
-      image: `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`,
+      image: `https://onlinedatingapp2.s3.amazonaws.com/${req.body.image}`,
       postUser: req.user._id,
       allowComments: allowComments,
       date: new Date()
@@ -932,7 +932,7 @@ app.post('/editPost/:id',requireLogin,(req,res) =>{
       post.body = req.body.body;
       post.status = req.body.status;
       post.allowComments = allowComments;
-      post.image = `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`;
+      post.image = `https://onlinedatingapp2.s3.amazonaws.com/${req.body.image}`;
       post.date = new Date()
 
       if (req.body.status === 'public') {
