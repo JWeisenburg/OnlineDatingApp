@@ -87,3 +87,6 @@ a:visited {
   background:  #e44b34;
   text-decoration: none;
 }
+.fa-paperclip{
+  cursor: pointer;
+}

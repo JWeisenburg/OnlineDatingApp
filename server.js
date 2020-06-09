@@ -126,7 +126,9 @@ app.get('/auth/google/callback', passport.authenticate('google', {
 app.get('/profile', requireLogin, (req, res) => {
   User.findById({
     _id: req.user._id
-  }).then((user) => {
+  })
+  .populate('friends.friend')
+  .then((user) => {
     if (user) {
       user.online = true;
       user.save((err, user) => {
@@ -172,6 +174,21 @@ app.get('/profile', requireLogin, (req, res) => {
     }
   });
 });
+// upload picture
+app.post('/uploadPictures',requireLogin,(req,res) =>{
+      User.findById({_id:req.user._id})
+      .then((user) =>{
+        const newImage = {
+          image: `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`,
+          date: new Date()
+        }
+        user.pictures.push(newImage)
+        user.save()
+        .then(() =>{
+          res.redirect('/profile');
+        })
+      })
+})
 app.post('/updateProfile', requireLogin, (req, res) => {
   User.findById({
       _id: req.user._id
@@ -374,6 +391,7 @@ app.get('/userProfile/:id',requireLogin,(req, res) => {
   User.findById({
       _id: req.params.id
     })
+    .populate('friends.friend')
     .then((user) => {
       Smile.findOne({
           receiver: req.params.id
@@ -847,7 +865,7 @@ app.post('/createPost',requireLogin,(req,res) =>{
       title: req.body.title,
       body: req.body.body,
       status: req.body.status,
-      image: `https://onlinedatingapp2.s3.amazonaws.com/${req.body.image}`,
+      image: `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`,
       postUser: req.user._id,
       allowComments: allowComments,
       date: new Date()
@@ -914,7 +932,7 @@ app.post('/editPost/:id',requireLogin,(req,res) =>{
       post.body = req.body.body;
       post.status = req.body.status;
       post.allowComments = allowComments;
-      post.image = `https://onlinedatingapp2.s3.amazonaws.com/${req.body.image}`;
+      post.image = `https://onlinedatingapp2.s3.amazonaws.com/${req.body.upload}`;
       post.date = new Date()
 
       if (req.body.status === 'public') {
@@ -1013,6 +1031,83 @@ app.get('/showFriendRequest/:id',requireLogin,(req,res) =>{
           newFriend:userRequest
     })
   })
+})
+// accept friend request
+app.get('/acceptFriend/:id',requireLogin,(req,res) =>{
+    User.findById({_id:req.user._id})
+    .populate('friends.friend')
+      .then((user) =>{
+          user.friends.filter((friend) =>{
+            if (friend._id = req.params.id) {
+                friend.isFriend = true;
+                user.save()
+                .then(() =>{
+                  User.findById({_id:req.params.id})
+                  .then((requestSender) =>{
+                      let newFriend = {
+                        friend:req.user._id,
+                        isFriend: true
+                      }
+                      requestSender.friends.push(newFriend)
+                      requestSender.save()
+                      .then(() =>{
+                        User.findById({_id:req.user._id})
+                        .populate('friends.friend')
+                        .sort({date:'desc'})
+                        .then((user) =>{
+                            res.render('friends/friendAccepted', {
+                              title: 'Friends',
+                              userInfo:user
+                            })
+                        })
+                      })
+                  })
+                })
+            }else{
+              res.render('friends/404',{
+                title: 'Not Found'
+              })
+            }
+          })
+      }).catch((err) =>{
+        console.log(err);
+      })
+    })
+app.get('/friends',requireLogin,(req,res) =>{
+  User.findById({_id:req.user._id})
+  .populate('friends.friend')
+  .then((user) =>{
+    res.render('friends/friends', {
+      title:'Friends',
+      userFriends:user
+    })
+  })
+})
+// reject friend request
+app.get('/rejectFriend/:id',requireLogin,(req,res) => {
+    User.findById({_id:req.user._id})
+    .populate('friends.friend')
+    .then((user) =>{
+      user.friends.filter((friend) =>{
+        if (friend._id = req.params.id) {
+          user.friends.pop(friend)
+          user.save()
+          .then(() =>{
+              User.findOne({_id:req.params.id})
+              .then((friend) =>{
+                res.render('friends/rejectFriendRequest',{
+                  title: 'Rejected',
+                  friend:friend
+                })
+              })
+          })
+        }else{
+          res.render('friends/404', {
+            title:'Not found'
+          })
+        }
+      })
+    })
 })
 app.get('/logout', (req, res) => {
   User.findById({_id:req.user._id})

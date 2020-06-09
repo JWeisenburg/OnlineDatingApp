@@ -64,6 +64,15 @@ const userSchema = new Schema({
       type: Boolean,
       default:false
     }
+  }],
+  pictures: [{
+    image: {
+      type: String
+    },
+    date : {
+      type: Date,
+      default: Date.now
+    }
   }]
 });
 
