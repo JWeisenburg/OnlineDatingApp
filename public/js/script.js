@@ -10,8 +10,7 @@ $(document).ready(function(){
 
           $.ajax({
             url: '/uploadFile',
-            method:'POST',
-            
+            type: 'POST',
             data: formData,
             processData: false,
             contentType: false,
