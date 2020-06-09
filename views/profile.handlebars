@@ -47,6 +47,8 @@
 
 </div>
 <hr>
+
+
 <i class="fa fa-paperclip" id="clipper"
 onclick="showUploadForm()"> Attach image</i>
 <div id="image-form" style="display:none">
@@ -65,13 +67,25 @@ onclick="showUploadForm()"> Attach image</i>
   </form>
 </div>
 
+<h2 class="center">My Pictures</h2>
+<div class="row">
 {{#each user.pictures}}
-<div class="card" style="width: 18rem;">
-  <img src="{{image}}" class="card-img-top" alt="...">
-</div>
+  <div class="col-sm pictures">
+    <div class="card">
+      <img src="{{image}}" onclick="enlargePicture(this)"
+      class="card-img-top picture">
+      <p>
+      <a class="right" href="/deletePicture/{{_id}}">
+              <i class="fa fa-trash image-icons"></i>
+
+      </a>
+      </p>
+    </div>
+  </div>
 {{else}}
 <p>You have no images</p>
 {{/each}}
+</div>
 
 <script>
   function showUploadForm(){
@@ -85,7 +99,12 @@ onclick="showUploadForm()"> Attach image</i>
         document.getElementById('upload-form').submit();
     },7000)
   }
+  function enlargePicture(picture){
+    picture.style.width = 'auto';
+    picture.style.height = 'auto';
+  }
 </script>
+
 <hr>
 <h2 class="center">My friends</h2>
 {{#each user.friends}}

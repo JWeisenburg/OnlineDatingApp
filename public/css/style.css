@@ -90,3 +90,15 @@ a:visited {
 .fa-paperclip{
   cursor: pointer;
 }
+.pictures{
+  border: 2px solid whitesmoke;
+  margin: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
+}
+.picture{
+  margin-bottom: 3px;
+}
+.image-icons{
+  margin-left: 5px;
+  margin-right: 5px;
+}
