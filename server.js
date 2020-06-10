@@ -112,7 +112,7 @@ app.get('/auth/facebook', passport.authenticate('facebook', {
   scope: ['email']
 }));
 app.get('/auth/facebook/callback', passport.authenticate('facebook', {
-  successRedirect: '/profile',
+  successRedirect: '/askMore',
   failureRedirect: '/'
 }));
 
@@ -120,7 +120,7 @@ app.get('/auth/google', passport.authenticate('google', {
   scope: ['profile']
 }));
 app.get('/auth/google/callback', passport.authenticate('google', {
-  successRedirect: '/profile',
+  successRedirect: '/askMore',
   failureRedirect: '/'
 }));
 // Display user profile pages
@@ -305,7 +305,7 @@ app.post('/signup', (req, res) => {
   }
 });
 app.post('/login', passport.authenticate('local', {
-  successRedirect: '/profile',
+  successRedirect: '/askMore',
   failureRedirect: '/loginErrors'
 }));
 app.get('/loginErrors', (req, res) => {
@@ -317,6 +317,31 @@ app.get('/loginErrors', (req, res) => {
     errors: errors
   });
 });
+// ask user to finish signup
+app.get('/askMore',(req,res) =>{
+  User.findById({_id:req.user._id})
+  .then((user) =>{
+    if (!user.gender || !user.age){
+        res.render('askMore',{
+          title: 'Finish',
+          user: user
+        })
+    }else{
+      res.redirect('/profile');
+    }
+  })
+})
+app.post('/askMore',requireLogin,(req,res) =>{
+    User.findById({_id:req.user._id})
+    .then((user) =>{
+      user.gender = req.body.gender;
+      user.age = req.body.age;
+      user.save()
+      .then(() =>{
+        res.redirect('/profile');
+      })
+    })
+})
 // retrieve password process
 app.get('/retrievePwd',(req,res) =>{
   res.render('retrievePwd', {
@@ -1173,6 +1198,10 @@ const io = socket(server);
 
 io.on('connection',(socketio) =>{
   console.log('Connected to Client');
+  //listen to even "ID"
+socketio.on('ID',(ID) =>{
+  console.log('User ID catched: ', ID);
+})
 });
 io.on('disconnection',()=>{
   console.log('Disconnected from Client')
